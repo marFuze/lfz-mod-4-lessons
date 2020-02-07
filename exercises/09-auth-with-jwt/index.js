@@ -92,11 +92,18 @@ app.post('/api/sign-in', async (req, res, next) => {
     // - "userId" | set to user.userId
     // - "ts" | set to the current Unix timestamp
 
+    const tokenData = {
+      userId: user.userId,
+      ts: Date.now()
+    };
     // Use jwt to encode the tokenData object
     // Save the token into a const named "token"
-
+    const token = jwt.encode(tokenData,jwtSecret, 'HS512');
+    console.log('token:', token);
     // Send the token to the client
 
+    res.send(token);
+    
   } catch (error) {
     next(error);
   }
