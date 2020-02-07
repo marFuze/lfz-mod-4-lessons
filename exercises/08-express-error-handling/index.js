@@ -4,7 +4,6 @@ const PORT = process.env.PORT || 9000;
 
 const app = express();
 
-
 app.get('/api/auth-error', (req, res, next) => {
   try {
     throw new ApiError(401, 'Not authorized');
@@ -56,15 +55,15 @@ app.get('/api/unprocessable-entity', (req, res, next) => {
 app.use(function (err, req, res, next) {
 
   if (err instanceof ApiError) {
-    console.log("api error status:", err.status,err.message);
+    console.log('api error status:', err.status, err.message);
     res.send({
-      "message": err.message,
-      "status": err.status
+      message: err.message,
+      status: err.status
     }
-    )
+    );
   } else {
-  console.error(err.stack);
-  res.status(500).send('Something broke!');
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
   }
 });
 
