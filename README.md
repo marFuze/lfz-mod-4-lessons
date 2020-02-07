@@ -16,3 +16,4 @@ To get started, follow the instructions in the [Getting Started Guide](guides/ge
 1. [sgt-back-end](exercises/06-sgt-back-end)
 1. [sql-join-and-alias](exercises/07-sql-join-and-alias)
 1. [express-error-handling](exercises/08-express-error-handling)
+1. [auth-with-jwt](exercises/09-auth-with-jwt)
