@@ -44,6 +44,11 @@ app.post('/api/sign-up', async (req, res, next) => {
     // Create an object with 2 properties save it into a const named "tokenData"
     // - "userId" | set to insertId
     // - "ts" | set to the current Unix timestamp 
+    const tokenData = {
+      userId: insertId,
+      ts: Date.now()
+    }
+
     
 
     // Use jwt to encode the tokenData object
