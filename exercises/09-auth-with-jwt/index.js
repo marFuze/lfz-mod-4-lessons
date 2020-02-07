@@ -25,16 +25,16 @@ app.post('/api/sign-up', async (req, res, next) => {
     let insertId = null;
 
     try {
-      const { rows: [ newUser ] } = await db.query(`
+      const { rows: [newUser] } = await db.query(`
         INSERT INTO "users"
         ("name", "email", "password")
         VALUES ($1, $2, $3)
         returning "userId"`,
-        [name, email, passHash]
+      [name, email, passHash]
       );
 
       insertId = newUser.userId;
-    } catch(error) {
+    } catch (error) {
       if (error.code === '23505') {
         throw new ApiError(422, 'Email already in use');
       }
@@ -43,21 +43,23 @@ app.post('/api/sign-up', async (req, res, next) => {
 
     // Create an object with 2 properties save it into a const named "tokenData"
     // - "userId" | set to insertId
-    // - "ts" | set to the current Unix timestamp 
+    // - "ts" | set to the current Unix timestamp
     const tokenData = {
       userId: insertId,
       ts: Date.now()
-    }
-
-    
+    };
 
     // Use jwt to encode the tokenData object
     // Save the token into a const named "token"
-    
-
+    const token = jwt.encode(tokenData,jwtSecret, 'HS512');
+    console.log('token:', token);
+    const decodedToken = jwt.decode(token,jwtSecret,'HS512');
+    console.log('decoded token:', decodedToken);
     // Send the token to the client
-    
-  } catch(error) {
+
+    res.send(token);
+
+  } catch (error) {
     next(error);
   }
 });
@@ -73,7 +75,7 @@ app.post('/api/sign-in', async (req, res, next) => {
     const { rows: [user = null] } = await db.query(`
       SELECT "userId", "password" FROM "users"
       WHERE "email" = $1`,
-      [email]
+    [email]
     );
 
     if (!user) {
@@ -88,15 +90,13 @@ app.post('/api/sign-in', async (req, res, next) => {
 
     // Create an object with 2 properties save it into a const named "tokenData"
     // - "userId" | set to user.userId
-    // - "ts" | set to the current Unix timestamp 
-    
+    // - "ts" | set to the current Unix timestamp
 
     // Use jwt to encode the tokenData object
     // Save the token into a const named "token"
-    
 
     // Send the token to the client
-    
+
   } catch (error) {
     next(error);
   }
