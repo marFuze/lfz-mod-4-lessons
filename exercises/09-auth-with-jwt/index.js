@@ -5,7 +5,9 @@ const auth = require('./middleware/auth');
 const db = require('./db');
 const defaultErrorHandler = require('./middleware/default_error_handler');
 const hash = require('./lib/hash');
-const { jwtSecret } = require('./config/jwt');
+const {
+  jwtSecret
+} = require('./config/jwt');
 const PORT = process.env.PORT || 9000;
 
 const app = express();
@@ -14,7 +16,11 @@ app.use(express.json());
 
 app.post('/api/sign-up', async (req, res, next) => {
   try {
-    const { name, email, password } = req.body;
+    const {
+      name,
+      email,
+      password
+    } = req.body;
 
     if (!name) throw new ApiError(422, 'Missing user\'s name');
     if (!email) throw new ApiError(422, 'Missing user\'s email');
@@ -25,12 +31,14 @@ app.post('/api/sign-up', async (req, res, next) => {
     let insertId = null;
 
     try {
-      const { rows: [newUser] } = await db.query(`
+      const {
+        rows: [newUser]
+      } = await db.query(`
         INSERT INTO "users"
         ("name", "email", "password")
         VALUES ($1, $2, $3)
         returning "userId"`,
-      [name, email, passHash]
+        [name, email, passHash]
       );
 
       insertId = newUser.userId;
@@ -51,9 +59,9 @@ app.post('/api/sign-up', async (req, res, next) => {
 
     // Use jwt to encode the tokenData object
     // Save the token into a const named "token"
-    const token = jwt.encode(tokenData,jwtSecret, 'HS512');
+    const token = jwt.encode(tokenData, jwtSecret, 'HS512');
     console.log('token:', token);
-    const decodedToken = jwt.decode(token,jwtSecret,'HS512');
+    const decodedToken = jwt.decode(token, jwtSecret, 'HS512');
     console.log('decoded token:', decodedToken);
     // Send the token to the client
 
@@ -66,16 +74,21 @@ app.post('/api/sign-up', async (req, res, next) => {
 
 app.post('/api/sign-in', async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const {
+      email,
+      password
+    } = req.body;
     const errorMessage = 'Invalid email/password combination';
 
     if (!email) throw new ApiError(422, 'Missing user\'s email');
     if (!password) throw new ApiError(422, 'Missing user\'s password');
 
-    const { rows: [user = null] } = await db.query(`
+    const {
+      rows: [user = null]
+    } = await db.query(`
       SELECT "userId", "password" FROM "users"
       WHERE "email" = $1`,
-    [email]
+      [email]
     );
 
     if (!user) {
@@ -98,19 +111,20 @@ app.post('/api/sign-in', async (req, res, next) => {
     };
     // Use jwt to encode the tokenData object
     // Save the token into a const named "token"
-    const token = jwt.encode(tokenData,jwtSecret, 'HS512');
+    const token = jwt.encode(tokenData, jwtSecret, 'HS512');
     console.log('token:', token);
     // Send the token to the client
 
     res.send(token);
-    
+
   } catch (error) {
     next(error);
   }
 });
 
 // Add the "auth" middleware to this endpoint
-app.get('/api/products', async (req, res, next) => {
+app.get('/api/products', auth, async (req, res, next) => {
+  
   try {
     if (!req.user) {
       throw new ApiError(401, 'Not Authorized');
